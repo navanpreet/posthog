@@ -36,6 +36,11 @@ export function KioskPlayer(): JSX.Element | null {
 
     useEventListener('mousemove', handleActivity)
     useEventListener('mousedown', handleActivity)
+    useEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+            handleClose()
+        }
+    })
 
     useEffect(() => {
         return () => {
