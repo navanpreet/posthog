@@ -658,6 +658,15 @@ class TestInsight(ClickhouseTestMixin, APIBaseTest, QueryMatchingTest):
         )
         self.assertEqual(any_on_dashboard_one.status_code, status.HTTP_200_OK)
         matched_insights = [insight["id"] for insight in any_on_dashboard_one.json()["results"]]
+        assert matched_insights == [insight_one_id]
+
+        # test filtering for insights without any dashboard
+        none_dashboards = self.client.get(
+            f"/api/projects/{self.team.id}/insights/?dashboards=[\"none\"]"
+        )
+        self.assertEqual(none_dashboards.status_code, status.HTTP_200_OK)
+        matched_insights = [insight["id"] for insight in none_dashboards.json()["results"]]
+        assert sorted(matched_insights) == [insight_three_id, insight_two_id]
         assert sorted(matched_insights) == [insight_one_id]
 
     @freeze_time("2012-01-14T03:21:34.000Z")
