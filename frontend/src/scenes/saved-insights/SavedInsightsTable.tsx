@@ -124,7 +124,7 @@ export function SavedInsightsTable({ isSelected, onToggle, isToggling }: SavedIn
                 <SavedInsightsFilters
                     filters={filters}
                     setFilters={setModalFilters}
-                    quickFilters={hasFilteredUI ? ['insightType', 'tags', 'createdBy'] : []}
+                    quickFilters={hasFilteredUI ? ['insightType', 'tags', 'dashboards', 'createdBy'] : []}
                     borderless={hasFilteredUI}
                 />
             </div>

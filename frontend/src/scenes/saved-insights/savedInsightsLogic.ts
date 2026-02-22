@@ -52,7 +52,7 @@ export interface SavedInsightFilters {
     lastViewedDateFrom: string | dayjs.Dayjs | undefined | null
     lastViewedDateTo: string | dayjs.Dayjs | undefined | null
     page: number
-    dashboardId: number | undefined | null
+    dashboardId: number | 'none' | undefined | null
     events: string[] | undefined | null
     hideFeatureFlagInsights: boolean | undefined | null
     favorited: boolean | undefined | null

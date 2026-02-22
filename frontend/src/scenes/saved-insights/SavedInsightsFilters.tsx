@@ -15,9 +15,10 @@ import { cn } from 'lib/utils/css-classes'
 import { membersLogic } from 'scenes/organization/membersLogic'
 import { INSIGHT_TYPE_OPTIONS } from 'scenes/saved-insights/SavedInsights'
 import { SavedInsightFilters } from 'scenes/saved-insights/savedInsightsLogic'
+import { dashboardsModel } from '~/models/dashboardsModel'
 
-export type QuickFilterKind = 'insightType' | 'tags' | 'createdBy' | 'favorites' | 'featureFlags'
-const ALL_QUICK_FILTERS: QuickFilterKind[] = ['insightType', 'tags', 'createdBy', 'favorites', 'featureFlags']
+export type QuickFilterKind = 'insightType' | 'tags' | 'createdBy' | 'dashboards' | 'favorites' | 'featureFlags'
+const ALL_QUICK_FILTERS: QuickFilterKind[] = ['insightType', 'tags', 'createdBy', 'dashboards', 'favorites', 'featureFlags']
 
 export function SavedInsightsFilters({
     filters,
@@ -31,11 +32,13 @@ export function SavedInsightsFilters({
     /** When true, inactive filters appear borderless. */
     borderless?: boolean
 }): JSX.Element {
-    const { search, hideFeatureFlagInsights, favorited, tags, insightType, createdBy } = filters
+    const { search, hideFeatureFlagInsights, favorited, tags, insightType, createdBy, dashboardId } = filters
     const { meFirstMembers, filteredMembers, membersLoading, search: memberSearch } = useValues(membersLogic)
+    const { nameSortedDashboards } = useValues(dashboardsModel)
     const { setSearch: setMemberSearch, ensureAllMembersLoaded } = useActions(membersLogic)
     const quickFilterSet = new Set(quickFilters)
     const hasInsightTypeSelection = !!insightType && insightType !== 'All types'
+    const hasDashboardSelection = !!dashboardId && dashboardId !== 'all'
     const hasCreatedBySelection = createdBy !== 'All users' && (createdBy as number[]).length > 0
     const currentUserId = meFirstMembers[0]?.user.id
     const isFilteredToCurrentUser =
@@ -195,6 +198,25 @@ export function SavedInsightsFilters({
                                       : 'Created by'}
                             </LemonButton>
                         </LemonDropdown>
+                    )}
+                    {quickFilterSet.has('dashboards') && (
+                        <LemonSelect
+                            dropdownMatchSelectWidth={false}
+                            size="small"
+                            active={hasDashboardSelection}
+                            status={borderless && !hasDashboardSelection ? 'alt' : 'default'}
+                            onChange={(value) => {
+                                const newDashboardId = value === 'all' ? undefined : value
+                                setFilters({ dashboardId: newDashboardId as any })
+                                posthog.capture('saved insights filtered', { filter_type: 'dashboard', value })
+                            }}
+                            options={[
+                                { value: 'all', label: 'All dashboards' },
+                                { value: 'none', label: 'No dashboard' },
+                                ...nameSortedDashboards.map(d => ({ value: d.id, label: d.name }))
+                            ]}
+                            value={dashboardId || 'all'}
+                        />
                     )}
                     {quickFilterSet.has('favorites') && (
                         <LemonButton
